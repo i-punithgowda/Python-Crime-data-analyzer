@@ -35,7 +35,6 @@ labelYearwise=Label(text="Year wise data",font=("roboto",22),fg="#f2f2f2",bg="#3
 def newWindow(year):
     newTITLE="Showing data for the year " + str(year)
     root.withdraw()
-    print(newTITLE)
     global lblYear;
     def onClose():
         yearWindow.destroy()
@@ -46,31 +45,51 @@ def newWindow(year):
     yearWindow.config(bg="#3A3845")
     lblYear=Label(yearWindow,text=newTITLE,font=("roboto",25),fg="#f2f2f2",bg="#3A3845").place(x=200,y=50)
     my_tree=ttk.Treeview(yearWindow)
-    my_tree['columns']=("Revenge","Extortion","piracy","Inciting hate")
+    my_tree['columns']=("Revenge","Extortion","Sexual Exploitation","Causing Disrepute")
 
-    my_tree.column("Revenge",width=120,minwidth=25,stretch=NO)
+    my_tree.column("Revenge",width=100,minwidth=25,)
     my_tree.column("Extortion",anchor=W,width=120)
-    my_tree.column("piracy",anchor=CENTER,width=120)
-    my_tree.column("Inciting hate",anchor=W,width=123)
+    my_tree.column("Sexual Exploitation",anchor=CENTER,width=180)
+    my_tree.column("Causing Disrepute",anchor=W,width=123)
 
     my_tree.heading("Revenge",text="Revenge",anchor=W)
     my_tree.heading("Extortion", text="Extortion", anchor=W)
-    my_tree.heading("piracy", text="Piracy", anchor=CENTER)
-    my_tree.heading("Inciting hate", text="Inciting hate", anchor=W)
+    my_tree.heading("Sexual Exploitation", text="Sexual Exploitation", anchor=CENTER)
+    my_tree.heading("Causing Disrepute", text="Inciting hate", anchor=W)
+    df=pd.read_csv(str(year)+".csv")
+    listRevenge=[]
+    listExtortion=[]
+    listSexuallExploitation=[]
+    listDisrepute=[]
+    for i in df["Revenge"]:
+        listRevenge.append(i)
+    for i in df["Extortion"]:
+        listExtortion.append(i)
+    for i in df["Sexual Exploitation"]:
+        listSexuallExploitation.append(i)
+    for i in df["Causing Disrepute"]:
+        listDisrepute.append(i)
+    ttlRevenge=sum(listRevenge[0:10])
+    ttlExtortion=sum(listExtortion[0:10])
+    ttlSexualExploitation=sum(listSexuallExploitation[0:10])
+    ttlInciters=sum(listDisrepute[0:10])
+    for i in range(1,11):
+        my_tree.insert(parent='',index='end',iid=i,text=i,values=(listRevenge[i],listExtortion[i],listSexuallExploitation[i],listDisrepute[i]))
+        my_tree.place(x=100, y=150)
 
-    for i in [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27]:
-        my_tree.insert(parent='',index='end',iid=i,text=i,values=(20,30,430,56))
-        my_tree.place(x=100,y=150)
-        x = [10, 30, 40, 56, 76, 43, 44, 67]
-        y = [4, 5, 4, 3, 4, 5, 6, 7]
+    lblTotal = Label(yearWindow, text="Total", font=("Roboto", 15, "bold"),bg="#3A3845",fg="#f2f2f2").place(x=100, y=400)
+    lblttlRevenge=Label(yearWindow,text=str(ttlRevenge),font=("Roboto",15,"bold"),bg="#3A3845",fg="#f2f2f2").place(x=300,y=400)
+    lblttlExtortion = Label(yearWindow, text=str(ttlExtortion), font=("Roboto", 15, "bold"),bg="#3A3845",fg="#f2f2f2").place(x=400, y=400)
+    lblttlSexualExploitation = Label(yearWindow, text=str(ttlSexualExploitation), font=("Roboto", 15, "bold"),bg="#3A3845",fg="#f2f2f2").place(x=600, y=400)
+    lblttlInciter = Label(yearWindow, text=str(ttlInciters), font=("Roboto", 15, "bold"),bg="#3A3845",fg="#f2f2f2").place(x=700, y=400)
+    x = [ttlRevenge,ttlExtortion,ttlSexualExploitation,ttlInciters]
+    y = ["Revenge","Extortion","Sexual Exploitation","Inciting hate speeches"]
     def generateGraph():
-        plt.xlabel('Model', fontsize=18)
-        plt.ylabel('summne', fontsize=19)
-        plt.bar(x,y)
+        plt.pie(x,labels=y)
         plt.show()
 
-    btngraph=Button(yearWindow,text="Click here to generate graph",bg="#ff0000",command=lambda:generateGraph())
-    btngraph.place(x=350,y=400)
+    btngraph=Button(yearWindow,text="Click here to generate graph",bg="#FFA1A1",command=lambda:generateGraph())
+    btngraph.place(x=350,y=450)
 
 
 
@@ -94,5 +113,5 @@ button2019=Button(image=my_img3,bg="#000",command=lambda : newWindow(2019)).plac
 lbl2018=Label(text="2019",fg="#f2f2f2",bg="#3A3845",font=("roboto",22)).place(x=250,y=700)
 button2020=Button(image=my_img4,bg="#000",command=lambda : newWindow(2020)).place(x=500,y=470)
 lbl2019=Label(text="2020",fg="#f2f2f2",bg="#3A3845",font=("roboto",22)).place(x=550,y=700)
-buttonStatewise=Button(text="State wise data",bg="#FF6363",command=statewise).place(x=750,y=750)
+buttonStatewise=Button(text="State wise data",bg="#FFA1A1",command=statewise).place(x=750,y=750)
 root.mainloop()
