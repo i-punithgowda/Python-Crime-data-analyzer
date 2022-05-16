@@ -1,7 +1,10 @@
+from email import message
+import select
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 from PIL import Image,ImageTk
+import math as Math
 import pandas as pd
 import matplotlib .pyplot as plt
 
@@ -18,16 +21,21 @@ img1 = Image.open("./images/1.jpg")
 img2 = Image.open("./images/2.jpg")
 img3= Image.open("./images/3.jpg")
 img4 = Image.open("./images/4.jpg")
+img5 = Image.open("./images/5.jpg")
 
 resize_image1 = img1.resize((200, 200))
 resize_image2= img2.resize((200, 200))
 resize_image3 = img3.resize((200, 200))
 resize_image4 = img4.resize((200, 200))
+resize_image5 = img5.resize((300,300))
+resize_image6 = img3.resize((200,200))
 
 my_img1=ImageTk.PhotoImage(resize_image1)
 my_img2=ImageTk.PhotoImage(resize_image2)
 my_img3=ImageTk.PhotoImage(resize_image3)
 my_img4=ImageTk.PhotoImage(resize_image4)
+my_img5=ImageTk.PhotoImage(resize_image5)
+my_img6=ImageTk.PhotoImage(resize_image6)
 labelHeading=Label(text="Cyber crime data analyzer",font=("roboto",23,"bold"),fg="#f2f2f2",bg="#3A3845").place(x=220,y=20)
 labelYearwise=Label(text="Year wise data",font=("roboto",22,"bold"),fg="#f2f2f2",bg="#3A3845").place(x=330,y=100)
 
@@ -207,7 +215,7 @@ button2019=Button(image=my_img3,bg="#000",command=lambda : newWindow(2019)).plac
 lbl2018=Label(text="2019",fg="#f2f2f2",bg="#3A3845",font=("roboto",22)).place(x=250,y=700)
 button2020=Button(image=my_img4,bg="#000",command=lambda : newWindow(2020)).place(x=500,y=470)
 lbl2019=Label(text="2020",fg="#f2f2f2",bg="#3A3845",font=("roboto",22)).place(x=550,y=700)
-buttonStatewise=Button(text="State wise data",bg="#FFA1A1",command=statewise).place(x=750,y=750)
+buttonStatewise=Button(text="State wise data",bg="#FFA1A1",command=statewise).place(x=730,y=750)
 
 
 def login():
@@ -314,22 +322,75 @@ def login():
 
 
 btnLogin=Button(text="Login/Signup",bg='#FFA1A1',command=login)
-btnLogin.place(x=500,y=750)
+btnLogin.place(x=370,y=750)
 
 def prediction():
-    if(auth["status"]==0):
-        messagebox.showerror("Login error","Login before performing this operation!")
-    else:
-        root.withdraw()
-        prediction_frame=Toplevel()
-        prediction_frame.config(bg=bgCol)
-        prediction_frame.geometry("700x600")
-        Label(prediction_frame,text="Prediction of crime data ",font=("Roboto",22,"bold"),bg=bgCol,fg="#f2f2f2").place(x=150,y=30)
+        if(auth["status"]==0):
+            messagebox.showerror("Login error","You are not logged in!")
+        else:
+            root.withdraw()
+            prediction_frame=Toplevel()
+            prediction_frame.config(bg=bgCol)
+            prediction_frame.minsize(700,800)
+            prediction_frame.maxsize(700,800)
+            Label(prediction_frame,text="Prediction of crime data",font=("Roboto",22,"bold"),bg=bgCol,fg="#f2f2f2").place(x=150,y=30)
+            btnSignup=Button(prediction_frame,image=my_img5).place(x=210,y=100)
+            stateList=["Select state","Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat","Haryana","Himachal Pradesh","Jammu and Kashmir","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh","Uttarakhand","West Bengal"]
+            crime=["Select Crime","Revenge","Extortion","Sexual Exploitation","Causing Disrepute"]
+            cmbState=ttk.Combobox(prediction_frame,width=35,value=stateList)
+            cmbState.place(x=210,y=440)
+            cmbState.current(0)
+            cmbCrime=ttk.Combobox(prediction_frame,width=35,value=crime)
+            cmbCrime.place(x=210,y=480)
+            cmbCrime.current(0)
+            futureYear=["Select time period",1,2,3,4,5]
+            cmbYear=ttk.Combobox(prediction_frame,values=futureYear,width=35)
+            cmbYear.place(x=210,y=520)
+            cmbYear.current(0)
+
         
-        def onClose():
-            root.deiconify()
-            prediction_frame.withdraw()
-        prediction_frame.protocol("WM_DELETE_WINDOW",onClose)   
+            def predict():
+                crimeDataTotal=0
+                listofValues=[]
+                selectedState=cmbState.get()
+                selectedCrime=cmbCrime.get()
+                if(selectedState==stateList[0]):
+                    messagebox.showerror("Error","Please select state!")
+                elif(selectedCrime==crime[0]):
+                    messagebox.showerror("Error","Please select crime!")
+                elif(cmbYear.get()==futureYear[0]):
+                    messagebox.showerror("Error","Please select no. of years!!")
+                else:
+                    i=2017
+                    while(i<=2020):
+                        df=pd.read_csv(str(i)+".csv")
+                        stateData = df.iloc[stateList.index(cmbState.get())-1]
+                        eachData=stateData[selectedCrime]
+                        listofValues.append(eachData)
+                        crimeDataTotal+=eachData
+                        i+=1
+
+                    sumofData=sum(listofValues)
+                    meanData=(sumofData/4)
+                    lblYear=Label(prediction_frame,text="Total : "+str(sumofData)+"",font=("Roboto",15,"bold")).place(x=30,y=590)
+                    lblPrediction=Label(prediction_frame,text=" "+str(Math.floor(meanData))+" no. of crimes will be increased in next "+cmbYear.get()+" year(s) ",font=("Roboto",13,"bold"))
+                    finalTotal=sumofData+meanData
+                    lblFinalTotal=Label(prediction_frame,font=("Roboto",15,"bold"),text="i.e after "+cmbYear.get()+" year(s) , "+str(Math.floor(finalTotal))+" cases will be registered ")
+                    lblFinalTotal.place(x=30,y=650)
+                    lblPrediction.place(x=30,y=620)
+                
+                    
+                    
+
+                
+            
+
+            Button(prediction_frame,text="Predict",fg="#000",bg="#FFA1A1",command=predict).place(x=300,y=560)
+
+            def onClose():
+                root.deiconify()
+                prediction_frame.withdraw()
+            prediction_frame.protocol("WM_DELETE_WINDOW",onClose)   
 
 btnPrediction=Button(text="Prediction",bg='#FFA1A1',command=prediction)
 btnPrediction.place(x=630,y=750)
@@ -338,7 +399,55 @@ btnPrediction.place(x=630,y=750)
 def setAuth(val):
     auth["status"]=val
     btnLogin.destroy()
-    
+
+def SpecificData():
+    if(auth["status"]==0):
+        messagebox.showerror("Error","You are not logged in!")
+    else:
+        root.withdraw()
+        specificFrame=Toplevel()
+        specificFrame.config(bg=bgCol)
+        specificFrame.geometry("700x300")
+        Label(specificFrame,text="Individual crime data",font=("Roboto",16,"bold")).place(x=30,y=30)
+        years=["Select year",2017,2018,2019,2020]
+        crimes=["Select crime","Revenge","Causing Disrepute","Extortion","Sexual Exploitation"]
+        states=["Select state","Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat","Haryana","Himachal Pradesh","Jammu and Kashmir","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh","Uttarakhand","West Bengal"]
+
+        cmbSpecificYear=ttk.Combobox(specificFrame,values=years,width=28)
+        cmbSpecificYear.current(0)
+        cmbSpecificYear.place(x=30,y=80)
+
+        cmbSpecificCrime=ttk.Combobox(specificFrame,values=crimes,width=28)
+        cmbSpecificCrime.current(0)
+        cmbSpecificCrime.place(x=30,y=110)
+
+        cmbSpecificState=ttk.Combobox(specificFrame,values=states,width=28)
+        cmbSpecificState.current(0)
+        cmbSpecificState.place(x=30,y=140)
+
+        def findData():
+            selectedCrime=cmbSpecificCrime.get()
+            selectedYear=cmbSpecificYear.get()
+            selectedState=cmbSpecificState.get()
+
+            if(selectedCrime==crimes[0] or selectedState==states[0] or selectedYear==years[0]):
+                messagebox.showerror("Error","Select all the fields!!")
+            else:
+                df=pd.read_csv(str(selectedYear)+".csv")
+                selectedData=df.iloc[states.index(selectedState)-1]
+                crimeTotal=selectedData[selectedCrime]
+                Label(specificFrame,text="Total Crimes : "+str(crimeTotal)+"",bg=bgCol,fg="#f2f2f2",font=("Roboto",16,"bold")).place(x=50,y=230)
+
+        Button(specificFrame,text="No. of crimes",bg="#FFA1A1",command=findData).place(x=60,y=190)
+        Button(specificFrame,image=my_img6).place(x=400,y=20)
+
+
+        def onClose():
+            root.deiconify()
+            specificFrame.withdraw()
+        specificFrame.protocol("WM_DELETE_WINDOW",onClose)
+btnSpecific=Button(text="Individual crime",bg='#FFA1A1',command=SpecificData)
+btnSpecific.place(x=490,y=750)
 
 def logout():
     setAuth(0)
